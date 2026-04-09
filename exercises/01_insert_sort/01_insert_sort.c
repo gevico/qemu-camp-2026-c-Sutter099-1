@@ -8,8 +8,18 @@ typedef struct {
 } Student;
 
 void insertion_sort(Student students[], int n) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    Student key;
+    int i, j;
+
+    for (i = 1; i <= n; ++i) {
+        j = i - 1;
+        key = students[i];
+        while (j >= 0 && students[j].score < key.score) {
+            students[j + 1] = students[j];
+            --j;
+        }
+        students[j + 1] = key;
+    }
 }
 
 int main(void) {
