@@ -13,9 +13,39 @@ typedef struct {
 Student students[MAX_STUDENTS];
 Student temp[MAX_STUDENTS];
 
+int min(int x, int y)
+{
+    return x < y ? x : y;
+}
+
 void merge_sort(int left, int right) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    Student *a = students, *b = temp;
+    int seg, start;
+    int len = right + 1;
+
+    for (seg = 1; seg < len; seg += seg) {
+        for (start = 0; start < len; start += seg * 2) {
+            int start1 = start, end1 = min(start1 + seg, len);
+            int start2 = start + seg, end2 = min(start2 + seg, len);
+            int k = start1;
+
+            while (start1 < end1 && start2 < end2)
+                b[k++] = a[start1].score > a[start2].score ? a[start1++] : a[start2++];
+            while (start1 < end1)
+                b[k++] = a[start1++];
+            while (start2 < end2)
+                b[k++] = a[start2++];
+        }
+
+        Student *_tmp = a;
+        a = b;
+        b = _tmp;
+    }
+
+    if (a != students) {
+        for (int i = 0; i < len; ++i)
+            b[i] = a[i];
+    }
 }
 
 int main(void) {
