@@ -9,15 +9,46 @@ int parse_replace_command(const char* cmd, char** old_str, char** new_str) {
         return -1;
     }
 
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    char *first, *second, *last;
+    int len1, len2;
+
+    first  = strchr(cmd, '/');
+    second = strchr(first + 1, '/');
+    last   = strchr(second + 1, '/');
+
+    len1 = second - first;
+    len2 = last - second;
+
+    *old_str = malloc(len1);
+    *new_str = malloc(len2);
+
+    memcpy(*old_str, first + 1, len1);
+    (*old_str)[len1 - 1] = '\0';
+    memcpy(*new_str, second + 1, len2);
+    (*new_str)[len2 - 1] = '\0';
 
     return 0;
 }
 
 void replace_first_occurrence(char* str, const char* old, const char* new) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    char *replace, *head, *tail;
+    int len_old = strlen(old);
+    int len_new = strlen(new);
+    int len_tail, len_head;
+
+    replace = strstr(str, old);
+    if (replace == NULL) {
+        fprintf(stderr, "sub string not found\n");
+        return;
+    }
+
+    head = str;
+    tail = replace + len_old;
+    len_head = replace - head;
+    len_tail = strlen(str) - len_old - len_head;
+
+    memmove(replace + len_new, tail, len_tail + 1); // terminator '\0'
+    memmove(replace, new, len_new);
 }
 
 int main(int argc, char* argv[]) {
