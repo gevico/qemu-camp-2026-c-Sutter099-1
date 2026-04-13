@@ -40,8 +40,26 @@ void processFile(const char *filename) {
     printf("=== 处理数据来自: %s ===\n", filename);
 
     switch (choice) {
-        // TODO: 在这里添加你的代码
-        // I AM NOT DONE
+    case 1:
+        int data_i[20];
+
+        for (int i = 0; i < n; ++i)
+            fscanf(fin, "%d", &data_i[i]);
+        sort(data_i, n, sizeof(int), compareInt);
+        for (int i = 0; i < n; ++i)
+            printf("%d ", data_i[i]);
+        printf("\n");
+        break;
+    case 2:
+        float data_f[20];
+
+        for (int i = 0; i < n; ++i)
+            fscanf(fin, "%f", &data_f[i]);
+        sort(data_f, n, sizeof(float), compareFloat);
+        for (int i = 0; i < n; ++i)
+            printf("%.2f ", data_f[i]);
+        printf("\n");
+        break;
     }
 
     fclose(fin);
