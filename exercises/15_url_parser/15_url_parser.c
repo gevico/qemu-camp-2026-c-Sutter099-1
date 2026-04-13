@@ -11,9 +11,30 @@
 
 int parse_url(const char* url) {
     int err = 0;
+    int len = strlen(url);
+    char *buf = malloc(len + 1), *token;
+    int start = 0;
 
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    memcpy(buf, url, len + 1);
+
+    // 1. start from '?'
+    while (buf[start] != '?' && buf[start] != '\0')
+        start++;
+
+    // 2. split by '&'
+    token = strtok(buf + start + 1, "&");
+    for (; token != NULL; token = strtok(NULL, "&")) {
+        char *key, *value;
+
+        key = token;
+        for (int i = 0; token[i] != '\0'; ++i)
+            if (token[i] == '=') {
+                token[i] = '\0';
+                value = token + i + 1;
+                break;
+            }
+        printf("key = %s, value = %s\n", key, value);
+    }
 
 exit:
     return err;
