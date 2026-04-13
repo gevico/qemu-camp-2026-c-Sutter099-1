@@ -5,6 +5,11 @@
 #define MAX_ARGS 10
 #define MAX_INPUT_LENGTH 256
 
+typedef enum {
+    WORD,
+    SPACE,
+} char_type;
+
 int shell_parse(char *buf, char *argv[]);
 void execute_command(int argc, char *argv[]);
 
@@ -61,7 +66,27 @@ int shell_parse(char *buf, char *argv[])
     // 功能：将输入字符串buf按空格分割成多个参数，存入argv数组
     // 返回：参数个数argc
     // 提示：使用状态机的方式处理，注意处理字符串结束符
-    // I AM NOT DONE
+    char_type last = SPACE;
+    int len = strlen(buf);
+    int sub_len = 0;
+    
+    argv[0] = malloc(MAX_INPUT_LENGTH);
+
+    for (int i = 0; i < len; ++i) {
+        if (buf[i] == ' ') { // SPACE
+            last = SPACE;
+        } else { // WORD
+            if (last = SPACE) {
+                argv[argc][sub_len++] = '\0';
+                argv[argc + 1] = &argv[argc][sub_len];
+                sub_len = 0;
+                argc++;
+            }
+            argv[argc][sub_len++] = buf[i];
+            last = WORD;
+        }
+    }
+
     return argc;
 }
 
