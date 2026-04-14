@@ -24,19 +24,41 @@ char to_lower(char c) { return tolower(c); }
 // 添加单词到哈希表
 void add_word(WordCount **hash_table, const char *word) {
   unsigned int index = hash(word);
-  WordCount *entry = hash_table[index];
+  WordCount **item = &hash_table[index];
 
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+  while (*item && strncmp((*item)->word, word, MAX_WORD_LEN))
+    item = &(*item)->next;
+
+  if (*item) {
+    (*item)->count++;
+    return;
+  }
+
+  *item = malloc(sizeof(WordCount));
+  if (!*item)
+    exit(EXIT_FAILURE);
+
+  strncpy((*item)->word, word, MAX_WORD_LEN - 1);
+  (*item)->word[MAX_WORD_LEN - 1] = '\0';
+  (*item)->count = 1;
+  (*item)->next = NULL;
 }
 
 // 打印单词统计结果
 void print_word_counts(WordCount **hash_table) {
+  WordCount *item;
+
   printf("Word Count Statistics:\n");
   printf("======================\n");
 
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+  for (int i = 0; i < HASH_SIZE; ++i) {
+    item = hash_table[i];
+
+    while (item) {
+      printf("%-20s %d\n", item->word, item->count);
+      item = item->next;
+    }
+  }
 }
 
 // 释放哈希表内存

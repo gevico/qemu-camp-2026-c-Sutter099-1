@@ -1,4 +1,6 @@
 #include "myfile.h"
+#include <elf.h>
+#include <fcntl.h>
 
 void print_elf_type(uint16_t e_type) {
     const char *type_str;
@@ -38,9 +40,13 @@ int __cmd_myfile(const char* filename) {
     fflush(stdout);
     printf("filepath: %s\n", filepath);
 
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    fd = open(filepath, O_RDONLY);
+    if (fd < 0) {
+        printf("open file %s failed\n", filepath);
+        return fd;
+    }
 
+    read(fd, &ehdr, sizeof(Elf64_Ehdr));
     print_elf_type(ehdr.e_type);
     close(fd);
     return 0;
