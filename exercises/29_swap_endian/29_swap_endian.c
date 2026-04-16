@@ -2,8 +2,17 @@
 #include <stdio.h>
 
 uint32_t swap_endian(uint32_t num) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    uint8_t *src, *dst;
+    uint32_t ret;
+
+    src = (uint8_t *)&num;
+    dst = (uint8_t *)&ret;
+
+    for (int i = 0; i < sizeof(uint32_t); ++i) {
+        dst[i] = src[sizeof(uint32_t) - i - 1];
+    }
+
+    return ret;
 }
 
 int main(int argc, char* argv[]) {
