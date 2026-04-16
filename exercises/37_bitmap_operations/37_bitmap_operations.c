@@ -10,14 +10,16 @@
 
 /* 将第 bit_index 位设置为 1（LSB 为最低位） */
 static void set_bit(unsigned char* bitmap, size_t bit_index) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    int char_id = bit_index / 8, bit_id = bit_index % 8;
+
+    bitmap[char_id] |= (0x1 << bit_id);
 }
 
 /* 读取第 bit_index 位，返回 0/1（LSB 为最低位） */
 static int test_bit(const unsigned char* bitmap, size_t bit_index) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    int char_id = bit_index / 8, bit_id = bit_index % 8;
+
+    return (bitmap[char_id] & (0x1 << bit_id)) > 0;
 }
 
 int main(void) {
