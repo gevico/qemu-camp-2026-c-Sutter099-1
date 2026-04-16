@@ -1,7 +1,8 @@
+#define _POSIX_C_SOURCE 200809L
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #define TABLE_SIZE 1024  // 哈希表大小
 
@@ -20,8 +21,12 @@ typedef struct {
 
 // djb2哈希函数
 unsigned long djb2_hash(const char *str) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    unsigned long hash = 5381;
+    int c;
+
+    while ((c = *str++)) hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+    return hash % TABLE_SIZE;
 }
 
 // 创建哈希表
@@ -35,15 +40,44 @@ HashTable *create_hash_table(int size) {
 // 向哈希表中插入单词
 void hash_table_insert(HashTable *ht, const char *word) {
     unsigned long hash = djb2_hash(word) % ht->size;
+    HashNode *node = ht->table[hash], *prev = NULL;
 
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    while (node && strcmp(node->word, word)) {
+        prev = node;
+        node = node->next;
+    }
+
+    if (node) {
+        node->count++;
+        return;
+    }
+
+    node = malloc(sizeof(HashNode));
+    node->next = NULL;
+    node->word = strdup(word);
+    node->count = 1;
+
+    if (!prev) {
+        ht->table[hash] = node;
+    } else {
+        prev->next = node;
+    }
 }
 
 // 从哈希表中获取所有单词及其计数
 void get_all_words(HashTable *ht, HashNode **nodes, int *count) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    HashNode *node;
+    int n = 0;
+
+    for (int i = 0; i < ht->size; ++i) {
+        node = ht->table[i];
+        while (node) {
+            nodes[n++] = node;
+            node = node->next;
+        }
+    }
+
+    *count = n;
 }
 
 // 比较函数用于排序
@@ -52,8 +86,11 @@ int compare_nodes(const void *a, const void *b) {
     HashNode *node_b = *(HashNode **)b;
     
     // 先按计数降序，再按字母升序
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (node_a->count != node_b->count) {
+        return node_b->count - node_a->count;
+    } else {
+        return strcmp(node_a->word, node_b->word);
+    }
 }
 
 // 释放哈希表内存
@@ -73,8 +110,19 @@ void free_hash_table(HashTable *ht) {
 
 // 从字符串中获取下一个单词
 char *get_next_word(const char **text) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    const char *start;
+
+    while (**text && !isalpha(**text))
+        (*text)++;
+
+    if (!**text)
+        return NULL;
+
+    start = *text;
+    while (isalpha(**text))
+        (*text)++;
+
+    return strndup(start, (*text) - start);
 }
 
 int main(int argc, char *argv[]) {
