@@ -1,4 +1,5 @@
 #include <pthread.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,25 +21,82 @@ typedef struct {
 } ring_buffer_t;
 
 static int rb_init(ring_buffer_t *rb, size_t capacity) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    int ret;
+
+    rb->capacity = capacity;
+    rb->head = 0;
+    rb->tail = 0;
+    rb->count = 0;
+    rb->buf = malloc(capacity * sizeof(int));
+    if (!rb->buf) {
+        ret = -1;
+        fprintf(stderr, "malloc failed\n");
+        goto err_buf;
+    }
+
+    ret = pthread_mutex_init(&rb->mtx, NULL);
+    if (ret) {
+        fprintf(stderr, "pthread_mutex_init failed\n");
+        goto err_mtx;
+    }
+
+    ret = pthread_cond_init(&rb->not_full, NULL);
+    if (ret) {
+        fprintf(stderr, "pthread_mutex_init failed\n");
+        goto err_not_full;
+    }
+
+    ret = pthread_cond_init(&rb->not_empty, NULL);
+    if (ret) {
+        fprintf(stderr, "pthread_mutex_init failed\n");
+        goto err_not_empty;
+    }
+
+    return 0;
+
+err_not_empty:
+    pthread_cond_destroy(&rb->not_full);
+err_not_full:
+    pthread_mutex_destroy(&rb->mtx);
+err_mtx:
+    free(rb->buf);
+err_buf:
+    return ret;
 }
 
 static void rb_destroy(ring_buffer_t *rb) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    pthread_cond_destroy(&rb->not_empty);
+    pthread_cond_destroy(&rb->not_full);
+    pthread_mutex_destroy(&rb->mtx);
+    free(rb->buf);
 }
 
 /* 入队：满则等待 not_full */
 static void rb_push(ring_buffer_t *rb, int val) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    pthread_mutex_lock(&rb->mtx);
+    while (rb->count == rb->capacity)
+        pthread_cond_wait(&rb->not_full, &rb->mtx);
+
+    rb->buf[rb->tail] = val;
+    rb->tail = (rb->tail + 1) % rb->capacity;
+    rb->count++;
+    pthread_cond_signal(&rb->not_empty);
+    pthread_mutex_unlock(&rb->mtx);
 }
 
 /* 出队：空则等待 not_empty */
 static int rb_pop(ring_buffer_t *rb, int *out) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    pthread_mutex_lock(&rb->mtx);
+    while (rb->count == 0)
+        pthread_cond_wait(&rb->not_empty, &rb->mtx);
+
+    *out = rb->buf[rb->head];
+    rb->head = (rb->head + 1) % rb->capacity;
+    rb->count--;
+    pthread_cond_signal(&rb->not_full);
+    pthread_mutex_unlock(&rb->mtx);
+
+    return *out;
 }
 
 typedef struct {
@@ -53,13 +111,28 @@ typedef struct {
 } consumer_arg_t;
 
 static void *producer(void *arg) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    // producer_arg_t pa = {.rb = &rb, .data = data, .n = n};
+    producer_arg_t pa = *(producer_arg_t *)arg;
+
+    for (size_t i = 0; i < pa.n; ++i) {
+        rb_push(pa.rb, pa.data[i]);
+    }
+
+    return NULL;
 }
 
 static void *consumer(void *arg) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    // producer_arg_t pa = {.rb = &rb, .data = data, .n = n};
+    consumer_arg_t ca = *(consumer_arg_t *)arg;
+    int x;
+
+    for (size_t i = 0; i < ca.n; ++i) {
+        rb_pop(ca.rb, &x);
+        printf(i ? ",%d" : "%d", x);
+    }
+    printf("\n");
+
+    return NULL;
 }
 
 int main(void) {
