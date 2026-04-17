@@ -110,7 +110,15 @@
     
      
      char compile_output[4096] = {0};
-     size_t bytes_read = fread(compile_output, 1, sizeof(compile_output) - 1, fp);
+     size_t bytes_read = 0;
+     while (fgets(compile_output + bytes_read, sizeof(compile_output) - bytes_read, fp) != NULL) {
+         bytes_read += strlen(compile_output + bytes_read);
+         if (bytes_read >= sizeof(compile_output) - 1) {
+             char drop_buf[1024];
+             while (fgets(drop_buf, sizeof(drop_buf), fp) != NULL) {}
+             break;
+         }
+     }
      int compile_status = pclose(fp);
      
      // 检查编译是否成功
@@ -144,7 +152,15 @@
      
      
      // 读取程序输出
-     bytes_read = fread(output, 1, output_size - 1, fp);
+     bytes_read = 0;
+     while (fgets(output + bytes_read, output_size - bytes_read, fp) != NULL) {
+         bytes_read += strlen(output + bytes_read);
+         if (bytes_read >= output_size - 1) {
+             char drop_buf[1024];
+             while (fgets(drop_buf, sizeof(drop_buf), fp) != NULL) {}
+             break;
+         }
+     }
      output[bytes_read] = '\0';
      
      int run_status = pclose(fp);
